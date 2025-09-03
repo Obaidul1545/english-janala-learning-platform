@@ -26,6 +26,7 @@ const removeActBtn = () => {
 };
 
 const loadLevelWord = (id) => {
+  manageSpinner(true);
   const url = `https://openapi.programming-hero.com/api/level/${id}`;
   fetch(url)
     .then((res) => res.json())
@@ -55,13 +56,14 @@ const displayShowCard = (words) => {
               >
             </div>
     `;
+    manageSpinner(false);
+    return;
   }
 
   words.forEach((word) => {
-    console.log(word);
     const card = document.createElement('div');
     card.innerHTML = `
-           <div class="bg-white p-11 rounded-3xl text-center space-y-5">
+           <div class="bg-white p-11 rounded-3xl text-center h-full space-y-5">
               <h3 class="text-3xl font-bold text-black">${
                 word.word ? word.word : 'Not Found'
               }</h3>
@@ -71,10 +73,11 @@ const displayShowCard = (words) => {
               <h2 class="text-3xl font-semibold font-bangla text-[#18181B]"
                 >${word.meaning ? word.meaning : 'পাওয়া যায় নাই'} / ${
       word.pronunciation ? word.pronunciation : 'পাওয়া যায় নাই'
-    }</h2
-              >
+    }</h2>
               <div class="flex justify-between items-center mt-10">
-                <button onclick="my_modal_5.showModal()" class="btn bg-[#1a90ff21] border-0 hover:bg-[#1a90ff80]"
+                <button onclick="loadWordDetail(${
+                  word.id
+                })" class="btn bg-[#1a90ff21] border-0 hover:bg-[#1a90ff80]"
                   ><i class="fa-solid fa-circle-info"></i
                 ></button>
                 <button class="btn bg-[#1a90ff21] border-0 hover:bg-[#1a90ff80]"
@@ -85,4 +88,63 @@ const displayShowCard = (words) => {
     `;
     cardContainer.append(card);
   });
+
+  manageSpinner(false);
+};
+
+const loadWordDetail = async (id) => {
+  const url = `https://openapi.programming-hero.com/api/word/${id}`;
+  const res = await fetch(url);
+  const detail = await res.json();
+  displayWordDetails(detail.data);
+};
+
+const createElements = (arr) => {
+  const htmlElements = arr.map(
+    (element) => `<span class="btn">${element}</span>`
+  );
+  return htmlElements.join(' ');
+};
+
+const displayWordDetails = (word) => {
+  const detailBox = document.getElementById('details-container');
+  detailBox.innerHTML = `
+          <div  class="space-y-3">
+            <div>
+                <h2 class="text-3xl font-bold font-bangla"
+                  >${word.word} (<i class="fa-solid fa-microphone-lines"></i> :
+                  ${word.pronunciation})</h2
+                >
+              </div>
+              <div>
+                <h2 class="text-xl font-semibold">Meaning </h2>
+                <p class="text-xl font-medium font-bangla">${word.meaning}</p>
+              </div>
+              <div>
+                <h2 class="text-xl font-semibold">Example </h2>
+                <p class="text-xl font-medium"
+                  >${word.sentence}</p
+                >
+              </div>
+              <div>
+                <h2 class="text-xl font-semibold font-bangla"
+                  >সমার্থক শব্দ গুলো 
+                </h2>
+                <div class="flex gap-3">
+                  ${createElements(word.synonyms)}
+                </div>
+              </div>
+          </din>
+  `;
+  document.getElementById('word_modal').showModal();
+};
+
+const manageSpinner = (status) => {
+  if (status == true) {
+    document.getElementById('spinner').classList.remove('hidden');
+    document.getElementById('card-container').classList.add('hidden');
+  } else {
+    document.getElementById('card-container').classList.remove('hidden');
+    document.getElementById('spinner').classList.add('hidden');
+  }
 };
