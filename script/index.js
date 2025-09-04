@@ -80,7 +80,9 @@ const displayShowCard = (words) => {
                 })" class="btn bg-[#1a90ff21] border-0 hover:bg-[#1a90ff80]"
                   ><i class="fa-solid fa-circle-info"></i
                 ></button>
-                <button class="btn bg-[#1a90ff21] border-0 hover:bg-[#1a90ff80]"
+                <button onclick="pronounceWord('${
+                  word.word
+                }')" class="btn bg-[#1a90ff21] border-0 hover:bg-[#1a90ff80]"
                   ><i class="fa-solid fa-volume-high"></i
                 ></button>
               </div>
@@ -148,3 +150,24 @@ const manageSpinner = (status) => {
     document.getElementById('spinner').classList.add('hidden');
   }
 };
+
+document.getElementById('search-btn').addEventListener('click', function () {
+  const input = document.getElementById('search-value');
+  const searchValue = input.value.trim().toLowerCase();
+
+  fetch('https://openapi.programming-hero.com/api/words/all')
+    .then((res) => res.json())
+    .then((data) => {
+      const allWords = data.data;
+      const filterWords = allWords.filter((word) =>
+        word.word.toLowerCase().includes(searchValue)
+      );
+      displayShowCard(filterWords);
+    });
+});
+
+function pronounceWord(word) {
+  const utterance = new SpeechSynthesisUtterance(word);
+  utterance.lang = 'en-EN'; // English
+  window.speechSynthesis.speak(utterance);
+}
